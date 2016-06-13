@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/apcera/libretto/ssh"
@@ -43,4 +44,18 @@ func GetVMIPs(vm lvm.VirtualMachine, options ssh.Options) ([]net.IP, error) {
 		}
 	}
 	return ips, nil
+}
+
+// CombineErrors converts all the errors from slice into a single error
+func CombineErrors(delimiter string, errs ...error) error {
+	var formatStrs = []string{}
+
+	for _, e := range errs {
+		if e == nil {
+			continue
+		}
+		formatStrs = append(formatStrs, e.Error())
+	}
+
+	return fmt.Errorf(strings.Join(formatStrs, delimiter))
 }
