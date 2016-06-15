@@ -38,6 +38,8 @@ var (
 	ErrUnableToWriteFile = errors.New("Unable to write file")
 	// ErrNotImplemented is returned when a function is not implemented (typically by the Mock implementation).
 	ErrNotImplemented = errors.New("Operation not implemented")
+	// Setup a mutex for the close channel for thread safety.
+	closeMutex sync.Mutex
 )
 
 const (
@@ -191,6 +193,10 @@ func (client *SSHClient) Connect() error {
 	}
 
 	client.cryptoClient = c
+
+	closeMutex.Lock()
+	defer closeMutex.Unlock()
+
 	if client.close == nil {
 		client.close = make(chan bool, 1)
 	}
@@ -217,8 +223,17 @@ func (client *SSHClient) keepAlive() {
 
 // Disconnect should be called when the ssh client is no longer needed, and state can be cleaned up
 func (client *SSHClient) Disconnect() {
-	// Close the keep alive routine
-	client.close <- true
+	select {
+	case <-client.close:
+	default:
+		closeMutex.Lock()
+		defer closeMutex.Unlock()
+
+		if client.close != nil {
+			close(client.close)
+			client.close = nil
+		}
+	}
 }
 
 // Download downloads a file via SSH (SCP)
