@@ -182,7 +182,8 @@ func (vm *VM) getPublicIP(authorizer *azure.ServicePrincipalToken) (net.IP, erro
 		return nil, err
 	}
 
-	if resPublicIP.Properties == nil || *resPublicIP.Properties.IPAddress == "" {
+	if resPublicIP.Properties == nil || resPublicIP.Properties.IPAddress == nil ||
+		*resPublicIP.Properties.IPAddress == "" {
 		return nil, fmt.Errorf("VM has no public IP address")
 	}
 	return net.ParseIP(*resPublicIP.Properties.IPAddress), nil
@@ -198,7 +199,8 @@ func (vm *VM) getPrivateIP(authorizer *azure.ServicePrincipalToken) (net.IP, err
 		return nil, err
 	}
 
-	if resPrivateIP.Properties == nil || len(*resPrivateIP.Properties.IPConfigurations) == 0 {
+	if resPrivateIP.Properties == nil || resPrivateIP.Properties.IPConfigurations == nil ||
+		len(*resPrivateIP.Properties.IPConfigurations) == 0 {
 		return nil, fmt.Errorf("VM has no private IP address")
 	}
 	ipConfigs := *resPrivateIP.Properties.IPConfigurations
