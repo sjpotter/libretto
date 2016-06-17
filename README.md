@@ -13,16 +13,16 @@ quite similar.
 
 Supported Providers
 ====================
-* vSphere > 5.0
 * AWS
-* Openstack (Mirantis)
-* VMware Fusion >= 8.0
-* VMware Workstation >= 8.0
-* Virtualbox >= 4.3.30
 * Azure
 * DigitalOcean
 * Exoscale
 * Google Cloud Platform
+* Openstack (Mirantis)
+* Virtualbox >= 4.3.30
+* VMware Fusion >= 8.0
+* VMware Workstation >= 8.0
+* vSphere > 5.0
 
 Getting Started
 ================
