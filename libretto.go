@@ -7,4 +7,5 @@
 // quite similar. See the README.md file for help getting started.
 package libretto
 
+// Version is the current version of libretto.
 const Version = "0.9.0"
