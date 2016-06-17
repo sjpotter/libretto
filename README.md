@@ -22,6 +22,7 @@ Supported Providers
 * Azure
 * DigitalOcean
 * Exoscale
+* Google Cloud Platform
 
 Getting Started
 ================
