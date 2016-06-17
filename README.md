@@ -399,7 +399,7 @@ https://github.com/apcera/libretto/graphs/contributors with special thanks to Re
 [License-URL]: https://opensource.org/licenses/Apache-2.0
 [License-Image]: https://img.shields.io/:license-apache-blue.svg
 [ReportCard-URL]: https://goreportcard.com/report/github.com/apcera/libretto
-[ReportCard-Image]: http://goreportcard.com/badge/apcera/libretto
+[ReportCard-Image]: https://goreportcard.com/badge/github.com/apcera/libretto
 [Build-Status-URL]: http://travis-ci.org/apcera/libretto
 [Build-Status-Image]: https://travis-ci.org/apcera/libretto.svg?branch=master
 [GoDoc-URL]: https://godoc.org/github.com/apcera/libretto
