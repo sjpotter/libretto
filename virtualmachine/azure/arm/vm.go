@@ -31,7 +31,7 @@ const (
 	PrivateIP = 1
 
 	// sshTimeout is the maximum seconds to wait before failing to GetSSH.
-	sshTimeout = 60
+	sshTimeout = 180
 
 	// actionTimeout is the maximum seconds to wait before failing to
 	// any action on VM, such as Provision, Halt or Destroy.
