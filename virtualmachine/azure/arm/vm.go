@@ -46,9 +46,6 @@ const (
 	// succeeded is the status returned when a deployment ends successfully
 	succeeded = "Succeeded"
 
-	// deploymentName is the deployment name when provisioning a VM
-	deploymentName = "libretto"
-
 	// maxPublicIPLength is the maximum length that public ip can have
 	maxPublicIPLength = 63
 )
@@ -94,6 +91,9 @@ type VM struct {
 	PublicIP             string
 	Subnet               string
 	VirtualNetwork       string
+
+	// deployment
+	deploymentName string
 }
 
 // GetName returns the name of the VM.
@@ -115,6 +115,7 @@ func (vm *VM) Provision() error {
 	vm.OsFile = tempName + "-os-disk.vhd"
 	vm.PublicIP = tempName + "-public-ip"
 	vm.Nic = tempName + "-nic"
+	vm.deploymentName = tempName + "-deploy"
 
 	publicIPLength := len(vm.PublicIP)
 	if publicIPLength > maxPublicIPLength {
