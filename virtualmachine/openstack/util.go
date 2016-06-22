@@ -181,9 +181,9 @@ func reserveImage(tokenID string, imageEndpoint string, imageMetadata ImageMetad
 	if imageApiVersion == 1 {
 		createReq, err = http.NewRequest("POST", imagesURI, nil)
 	} else {
-		imageStr, err := json.Marshal(imageMetadata)
-		if err != nil {
-			return "", err
+		imageStr, imgErr := json.Marshal(imageMetadata)
+		if imgErr != nil {
+			return "", imgErr
 		}
 
 		createReq, err = http.NewRequest("POST", imagesURI, bytes.NewBuffer(imageStr))

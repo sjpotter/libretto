@@ -57,6 +57,7 @@ var newCollector = func(c *vim25.Client) *property.Collector {
 	return property.DefaultCollector(c)
 }
 
+// SetupSession is used to setup the session.
 var SetupSession = func(vm *VM) error {
 	uri := getURI(vm.Host)
 	u, err := url.Parse(uri)

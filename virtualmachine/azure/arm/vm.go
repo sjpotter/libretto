@@ -37,18 +37,19 @@ const (
 	// any action on VM, such as Provision, Halt or Destroy.
 	actionTimeout = 90
 
-	// Running is status returned when the VM is running
+	// running is the status returned when the VM is running
 	running = "VM running"
-	// Stopped is status returned when the VM is halted
+
+	// stopped is the status returned when the VM is halted
 	stopped = "VM stopped"
 
-	// Succeded is the status returned when a deployment ends successfully
+	// succeeded is the status returned when a deployment ends successfully
 	succeeded = "Succeeded"
 
-	// Deployment name when provisioning a VM
+	// deploymentName is the deployment name when provisioning a VM
 	deploymentName = "libretto"
 
-	// Maximum length that public ip can have
+	// maxPublicIPLength is the maximum length that public ip can have
 	maxPublicIPLength = 63
 )
 

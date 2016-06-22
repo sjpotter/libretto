@@ -294,7 +294,7 @@ func (svc *googleService) provision() error {
 			},
 		},
 		NetworkInterfaces: []*googlecloud.NetworkInterface{
-			&googlecloud.NetworkInterface{
+			{
 				AccessConfigs: []*googlecloud.AccessConfig{
 					&accessconfig,
 				},
@@ -306,7 +306,7 @@ func (svc *googleService) provision() error {
 			Preemptible: svc.vm.Preemptible,
 		},
 		ServiceAccounts: []*googlecloud.ServiceAccount{
-			&googlecloud.ServiceAccount{
+			{
 				Email:  "default",
 				Scopes: svc.vm.Scopes,
 			},
@@ -428,6 +428,9 @@ func (svc *googleService) insertSSHKey() error {
 			},
 		},
 	}).Do()
+	if err != nil {
+		return err
+	}
 
 	return svc.waitForOperationReady(op.Name)
 }

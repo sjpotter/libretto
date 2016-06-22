@@ -23,7 +23,7 @@ type VM struct {
 	ServiceOffering ServiceOffering // Service offering
 	SecurityGroups  []SecurityGroup // list of security groups associated with the virtual machine
 	KeypairName     string          // SSH Keypair identifier to use
-	Userdata        string          // User data sent to the virutal machine
+	Userdata        string          // User data sent to the virtual machine
 	Zone            Zone            // Zone identifier
 
 	ID    string // Virtual machine ID.

@@ -102,6 +102,7 @@ type VM struct {
 	DeleteKeysOnDestroy bool
 }
 
+// EBSVolume represents an EBS Volume
 type EBSVolume struct {
 	DeviceName string
 	VolumeSize int
