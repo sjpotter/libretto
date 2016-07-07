@@ -45,9 +45,6 @@ const (
 
 	// succeeded is the status returned when a deployment ends successfully
 	succeeded = "Succeeded"
-
-	// maxPublicIPLength is the maximum length that public ip can have
-	maxPublicIPLength = 63
 )
 
 var _ lvm.VirtualMachine = (*VM)(nil)
@@ -111,16 +108,11 @@ func (vm *VM) Provision() error {
 	}
 
 	// Set up private members of the VM
-	tempName := fmt.Sprintf("%s-%s", vm.Name, randStringRunes(6))
+	tempName := fmt.Sprintf("%s", randStringRunes(5))
 	vm.OsFile = tempName + "-os-disk.vhd"
 	vm.PublicIP = tempName + "-public-ip"
 	vm.Nic = tempName + "-nic"
 	vm.deploymentName = tempName + "-deploy"
-
-	publicIPLength := len(vm.PublicIP)
-	if publicIPLength > maxPublicIPLength {
-		vm.PublicIP = vm.PublicIP[publicIPLength-maxPublicIPLength:]
-	}
 
 	// Create and send the deployment
 	vm.deploy()
