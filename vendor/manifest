@@ -159,24 +159,6 @@
 			"branch": "master"
 		},
 		{
-			"importpath": "github.com/golang/protobuf/proto",
-			"repository": "https://github.com/golang/protobuf",
-			"vcs": "git",
-			"revision": "8616e8ee5e20a1704615e6c8d7afcdac06087a67",
-			"branch": "master",
-			"path": "/proto",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/golang/protobuf/proto/testdata",
-			"repository": "https://github.com/golang/protobuf",
-			"vcs": "git",
-			"revision": "9e6977f30c91c78396e719e164e57f9287fff42c",
-			"branch": "master",
-			"path": "/proto/testdata",
-			"notests": true
-		},
-		{
 			"importpath": "github.com/googleapis/gax-go",
 			"repository": "https://github.com/googleapis/gax-go",
 			"vcs": "git",
@@ -256,17 +238,26 @@
 			"importpath": "golang.org/x/crypto/curve25519",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
-			"revision": "1f22c0103821b9390939b6776727195525381532",
-			"branch": "HEAD",
+			"revision": "bc89c496413265e715159bdc8478ee9a92fdc265",
+			"branch": "master",
 			"path": "/curve25519",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/ed25519",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "bc89c496413265e715159bdc8478ee9a92fdc265",
+			"branch": "master",
+			"path": "/ed25519",
 			"notests": true
 		},
 		{
 			"importpath": "golang.org/x/crypto/pkcs12",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
-			"revision": "1f22c0103821b9390939b6776727195525381532",
-			"branch": "HEAD",
+			"revision": "bc89c496413265e715159bdc8478ee9a92fdc265",
+			"branch": "master",
 			"path": "/pkcs12",
 			"notests": true
 		},
@@ -274,8 +265,8 @@
 			"importpath": "golang.org/x/crypto/ssh",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
-			"revision": "1f22c0103821b9390939b6776727195525381532",
-			"branch": "HEAD",
+			"revision": "bc89c496413265e715159bdc8478ee9a92fdc265",
+			"branch": "master",
 			"path": "/ssh",
 			"notests": true
 		},
@@ -418,15 +409,6 @@
 			"vcs": "git",
 			"revision": "4a23f97e60c9a14de1269e78812e59ca94033d85",
 			"branch": "master",
-			"notests": true
-		},
-		{
-			"importpath": "google.golang.org/cloud/compute/metadata",
-			"repository": "https://code.googlesource.com/gocloud",
-			"vcs": "git",
-			"revision": "4a23f97e60c9a14de1269e78812e59ca94033d85",
-			"branch": "master",
-			"path": "/compute/metadata",
 			"notests": true
 		},
 		{
