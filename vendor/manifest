@@ -68,7 +68,7 @@
 			"importpath": "github.com/aws/aws-sdk-go/aws",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "83c400dd354759bdb2fb49f9c6e53cee3e0c9484",
+			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
 			"branch": "HEAD",
 			"path": "/aws",
 			"notests": true
@@ -77,7 +77,7 @@
 			"importpath": "github.com/aws/aws-sdk-go/private/endpoints",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "83c400dd354759bdb2fb49f9c6e53cee3e0c9484",
+			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
 			"branch": "HEAD",
 			"path": "/private/endpoints",
 			"notests": true
@@ -86,25 +86,16 @@
 			"importpath": "github.com/aws/aws-sdk-go/private/protocol",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "83c400dd354759bdb2fb49f9c6e53cee3e0c9484",
+			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
 			"branch": "HEAD",
 			"path": "/private/protocol",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/aws/aws-sdk-go/private/signer/v4",
-			"repository": "https://github.com/aws/aws-sdk-go",
-			"vcs": "git",
-			"revision": "83c400dd354759bdb2fb49f9c6e53cee3e0c9484",
-			"branch": "HEAD",
-			"path": "/private/signer/v4",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/aws/aws-sdk-go/private/waiter",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "83c400dd354759bdb2fb49f9c6e53cee3e0c9484",
+			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
 			"branch": "HEAD",
 			"path": "/private/waiter",
 			"notests": true
@@ -113,7 +104,7 @@
 			"importpath": "github.com/aws/aws-sdk-go/service/ec2",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "83c400dd354759bdb2fb49f9c6e53cee3e0c9484",
+			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
 			"branch": "HEAD",
 			"path": "/service/ec2",
 			"notests": true
@@ -122,7 +113,7 @@
 			"importpath": "github.com/aws/aws-sdk-go/service/sts",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "83c400dd354759bdb2fb49f9c6e53cee3e0c9484",
+			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
 			"branch": "HEAD",
 			"path": "/service/sts",
 			"notests": true
@@ -157,24 +148,6 @@
 			"vcs": "git",
 			"revision": "8616e8ee5e20a1704615e6c8d7afcdac06087a67",
 			"branch": "master"
-		},
-		{
-			"importpath": "github.com/golang/protobuf/proto",
-			"repository": "https://github.com/golang/protobuf",
-			"vcs": "git",
-			"revision": "8616e8ee5e20a1704615e6c8d7afcdac06087a67",
-			"branch": "master",
-			"path": "/proto",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/golang/protobuf/proto/testdata",
-			"repository": "https://github.com/golang/protobuf",
-			"vcs": "git",
-			"revision": "9e6977f30c91c78396e719e164e57f9287fff42c",
-			"branch": "master",
-			"path": "/proto/testdata",
-			"notests": true
 		},
 		{
 			"importpath": "github.com/googleapis/gax-go",
@@ -418,15 +391,6 @@
 			"vcs": "git",
 			"revision": "4a23f97e60c9a14de1269e78812e59ca94033d85",
 			"branch": "master",
-			"notests": true
-		},
-		{
-			"importpath": "google.golang.org/cloud/compute/metadata",
-			"repository": "https://code.googlesource.com/gocloud",
-			"vcs": "git",
-			"revision": "4a23f97e60c9a14de1269e78812e59ca94033d85",
-			"branch": "master",
-			"path": "/compute/metadata",
 			"notests": true
 		},
 		{
