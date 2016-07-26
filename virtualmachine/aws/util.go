@@ -4,7 +4,9 @@ package aws
 
 import (
 	"fmt"
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/apcera/util/uuid"
 	"github.com/aws/aws-sdk-go/aws"
@@ -131,6 +133,8 @@ func getService(region string) *ec2.EC2 {
 	return ec2.New(session.New(&aws.Config{
 		Credentials: creds,
 		Region:      &region,
+		CredentialsChainVerboseErrors: aws.Bool(true),
+		HTTPClient:                    &http.Client{Timeout: 30 * time.Second},
 	}))
 }
 
