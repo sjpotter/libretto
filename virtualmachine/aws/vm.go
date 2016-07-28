@@ -18,24 +18,10 @@ import (
 )
 
 const (
-	noCredsCode  = "NoCredentialProviders"
-	noRegionCode = "MissingRegion"
-
-	instanceCount = 1
-
-	defaultInstanceType = "t2.micro"
-	defaultAMI          = "ami-5189a661" // ubuntu free tier
-	defaultVolumeSize   = 8              // GB
-	defaultDeviceName   = "/dev/sda1"
-	defaultVolumeType   = "gp2"
-
 	// PublicIP is the index of the public IP address that GetIPs returns.
 	PublicIP = 0
 	// PrivateIP is the index of the private IP address that GetIPs returns.
 	PrivateIP = 1
-
-	// RegionEnv is the env var for the AWS region.
-	RegionEnv = "AWS_DEFAULT_REGION"
 
 	// ProvisionTimeout is the maximum seconds to wait before failing to
 	// provision.
@@ -165,21 +151,8 @@ func (vm *VM) Provision() error {
 		return ErrNoInstanceID
 	}
 
-	instID := []*string{
-		aws.String(vm.InstanceID),
-	}
-
-	err = svc.WaitUntilInstanceExists(&ec2.DescribeInstancesInput{
-		InstanceIds: instID,
-	})
-	if err != nil {
-		return fmt.Errorf("Failed to wait for instance to exist: %s", err)
-	}
-	err = svc.WaitUntilInstanceRunning(&ec2.DescribeInstancesInput{
-		InstanceIds: instID,
-	})
-	if err != nil {
-		return fmt.Errorf("Failed to wait for instance to run: %s", err)
+	if err := waitUntilReady(svc, vm.InstanceID); err != nil {
+		return err
 	}
 
 	if vm.DeleteNonRootVolumeOnDestroy {
