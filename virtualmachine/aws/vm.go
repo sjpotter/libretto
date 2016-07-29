@@ -23,9 +23,6 @@ const (
 	// PrivateIP is the index of the private IP address that GetIPs returns.
 	PrivateIP = 1
 
-	// ProvisionTimeout is the maximum seconds to wait before failing to
-	// provision.
-	ProvisionTimeout = 90
 	// SSHTimeout is the maximum time to wait before failing to GetSSH.
 	SSHTimeout = 5 * time.Minute
 

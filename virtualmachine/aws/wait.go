@@ -16,7 +16,6 @@ type ReadyError struct {
 
 	ImageID               string
 	InstanceID            string
-	InstanceStateName     string
 	InstanceType          string
 	LaunchTime            time.Time
 	PublicIPAddress       string
