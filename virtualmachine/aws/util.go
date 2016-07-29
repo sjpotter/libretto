@@ -16,6 +16,21 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
+const (
+	noCredsCode  = "NoCredentialProviders"
+	noRegionCode = "MissingRegion"
+
+	instanceCount       = 1
+	defaultInstanceType = "t2.micro"
+	defaultAMI          = "ami-5189a661" // ubuntu free tier
+	defaultVolumeSize   = 8              // GB
+	defaultDeviceName   = "/dev/sda1"
+	defaultVolumeType   = "gp2"
+
+	// RegionEnv is the env var for the AWS region.
+	RegionEnv = "AWS_DEFAULT_REGION"
+)
+
 // ValidCredentials sends a dummy request to AWS to check if credentials are
 // valid. An error is returned if credentials are missing or region is missing.
 func ValidCredentials(region string) error {
