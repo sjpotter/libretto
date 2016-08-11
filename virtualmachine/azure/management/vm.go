@@ -23,15 +23,16 @@ const (
 	// PrivateIP is the index of the private IP address that GetIPs returns.
 	PrivateIP = 1
 
-	// DefaultTimeout is the maximum seconds to wait before failing to GetSSH.
-	DefaultTimeout = 800
-
 	errGetClient      = "Error to retrieve Azure client %s"
 	errGetDeployment  = "Error to provision Azure VM %s"
 	errGetListService = "Error to list hosted services %s"
 	errMsgTimeout     = "Time out waiting for instance to %s"
 	errProvisionVM    = "Error to provision Azure VM %s"
 )
+
+// SSHTimeout is the maximum time to wait before failing to GetSSH. This is not
+// thread-safe.
+var SSHTimeout = 800 * time.Second
 
 var _ lvm.VirtualMachine = (*VM)(nil)
 
@@ -144,7 +145,7 @@ func (vm *VM) Provision() error {
 		return err
 	}
 
-	return cli.WaitForSSH(DefaultTimeout * time.Second)
+	return cli.WaitForSSH(SSHTimeout)
 }
 
 // GetIPs returns the IP addresses of the Azure VM instance.

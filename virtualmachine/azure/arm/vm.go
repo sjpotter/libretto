@@ -30,9 +30,6 @@ const (
 	// PrivateIP is the index of the private IP address that GetIPs returns.
 	PrivateIP = 1
 
-	// sshTimeout is the maximum seconds to wait before failing to GetSSH.
-	sshTimeout = 180
-
 	// actionTimeout is the maximum seconds to wait before failing to
 	// any action on VM, such as Provision, Halt or Destroy.
 	actionTimeout = 90
@@ -46,6 +43,10 @@ const (
 	// succeeded is the status returned when a deployment ends successfully
 	succeeded = "Succeeded"
 )
+
+// SSHTimeout is the maximum time to wait before failing to GetSSH. This is not
+// thread-safe.
+var SSHTimeout = 180 * time.Second
 
 var _ lvm.VirtualMachine = (*VM)(nil)
 
@@ -123,7 +124,7 @@ func (vm *VM) Provision() error {
 		return err
 	}
 
-	return cli.WaitForSSH(sshTimeout * time.Second)
+	return cli.WaitForSSH(SSHTimeout)
 }
 
 // GetIPs returns the IP addresses of the Azure VM instance.

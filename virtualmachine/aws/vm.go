@@ -23,9 +23,6 @@ const (
 	// PrivateIP is the index of the private IP address that GetIPs returns.
 	PrivateIP = 1
 
-	// SSHTimeout is the maximum time to wait before failing to GetSSH.
-	SSHTimeout = 5 * time.Minute
-
 	// StateStarted is the state AWS reports when the VM is started.
 	StateStarted = "running"
 	// StateHalted is the state AWS reports when the VM is halted.
@@ -36,11 +33,18 @@ const (
 	StatePending = "pending"
 )
 
-// Compiler will complain if aws.VM doesn't implement VirtualMachine interface.
-var _ virtualmachine.VirtualMachine = (*VM)(nil)
+// SSHTimeout is the maximum time to wait before failing to GetSSH. This is not
+// thread-safe.
+var SSHTimeout = 5 * time.Minute
 
-// limiter rate limits channel to prevent saturating AWS API limits.
-var limiter = time.Tick(time.Millisecond * 500)
+var (
+	// This ensures that aws.VM implements the virtualmachine.VirtualMachine
+	// interface at compile time.
+	_ virtualmachine.VirtualMachine = (*VM)(nil)
+
+	// limiter rate limits channel to prevent saturating AWS API limits.
+	limiter = time.Tick(time.Millisecond * 500)
+)
 
 var (
 	// ErrNoCreds is returned when no credentials are found in environment or

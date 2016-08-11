@@ -19,12 +19,13 @@ const (
 	// PrivateIP represents the private IP address that GetIPs returns.
 	PrivateIP = 1
 
-	// SSHTimeout represents Maximum time to wait before failing to GetSSH.
-	SSHTimeout = 3 * time.Minute
-
 	// OperationTimeout represents Maximum time(Second) to wait for operation ready.
 	OperationTimeout = 180
 )
+
+// SSHTimeout is the maximum time to wait before failing to GetSSH. This is not
+// thread-safe.
+var SSHTimeout = 3 * time.Minute
 
 var (
 	// Compiler will complain if google.VM doesn't implement VirtualMachine interface.

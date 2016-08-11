@@ -397,7 +397,7 @@ func waitUntilSSHReady(vm *VM) error {
 	if err != nil {
 		return err
 	}
-	return client.WaitForSSH(SSHTimeout * time.Second)
+	return client.WaitForSSH(SSHTimeout)
 }
 
 // createAndAttachVolume creates a new volume with the given volume specs and then attaches this volume to the given VM.
