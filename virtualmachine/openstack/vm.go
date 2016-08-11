@@ -62,9 +62,6 @@ const (
 	// VolumeActionTimeout is the maximum seconds to wait before failing to
 	// do an action (create, delete) on the volume.
 	VolumeActionTimeout = 900
-	// SSHTimeout is the maximum seconds to wait before failing to
-	// GetSSH.
-	SSHTimeout = 900
 
 	// StateActive is the state Openstack reports when the VM is started.
 	StateActive = "ACTIVE"
@@ -84,6 +81,10 @@ const (
 	// imageQueued is the state Openstack reports when the image is first created
 	imageQueued = "queued"
 )
+
+// SSHTimeout is the maximum time to wait before failing to GetSSH. This is not
+// thread-safe.
+var SSHTimeout = 900 * time.Second
 
 // ImageMetadata represents what kind of Image will be loaded to the VM
 type ImageMetadata struct {

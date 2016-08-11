@@ -82,10 +82,12 @@ const (
 	Huge       ServiceOfferingType = "Huge"
 )
 
-// SSHTimeout is the time before timing out an SSH connection
-const SSHTimeout = 30 * time.Second
+// SSHTimeout is the maximum time to wait before failing to GetSSH. This is not
+// thread-safe.
+var SSHTimeout = 30 * time.Second
 
-// Compiler will complain if aws.VM doesn't implement VirtualMachine interface.
+// This ensures that exoscale.VM implements the virtualmachine.VirtualMachine
+// interface at compile time.
 var _ virtualmachine.VirtualMachine = (*VM)(nil)
 
 // GetName returns the name of the virtual machine
