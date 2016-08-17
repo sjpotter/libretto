@@ -43,6 +43,9 @@ const vmrunTimeout = 90 * time.Second
 // ErrVmrunTimeout is returned when vmrun doesn't finish executing in `vmrunTimeout` seconds.
 var ErrVmrunTimeout = errors.New("Timed out waiting for vmrun")
 
+// ErrVmrunNotFound is returned when no vmrun was found in host.
+var ErrVmrunNotFound = errors.New("Failed to find vmrun")
+
 // Regular expression to parse the VMX file
 var ethernetRegexp = regexp.MustCompile(`ethernet.*\n`)
 
@@ -84,6 +87,10 @@ func (f vmrunRunner) Run(args ...string) (string, string, error) {
 		vmrunPath = path
 	} else {
 		vmrunPath = VMRunPath
+	}
+
+	if vmrunPath == "" {
+		return "", "", ErrVmrunNotFound
 	}
 
 	cmd := exec.Command(vmrunPath, args...)

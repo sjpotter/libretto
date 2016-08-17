@@ -9,9 +9,18 @@ import (
 	"path/filepath"
 )
 
-// Hardcoded path to vmrun to fallback when it is not on path.
+// VMRunPath is default path to vmrun to fallback when it is not on path.
 var VMRunPath string
 
+// VMwareProducts define VMware products those contain vmrun.exe in Windows.
+var VMwareProducts = [3]string{"VMware Workstation", "VMware Player", "VMware VIX"}
+
 func init() {
-	VMRunPath = filepath.Join(os.Getenv("ProgramFiles(x86)"), "VMware", "VMware VIX", "vmrun.exe")
+	for _, products := range VMwareProducts {
+		path := filepath.Join(os.Getenv("ProgramFiles(x86)"), "VMware", products, "vmrun.exe")
+		if _, err := os.Stat(path); err == nil {
+			VMRunPath = path
+			break
+		}
+	}
 }
