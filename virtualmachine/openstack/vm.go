@@ -226,8 +226,15 @@ func (vm *VM) Provision() error {
 	}
 
 	server, err := servers.Create(client, createOpts).Extract()
-
 	if err != nil {
+		return err
+	}
+
+	// Cleanup VM if something goes wrong
+	var cleanup = func(err error) error {
+		if errDestroy := vm.Destroy(); errDestroy != nil {
+			return fmt.Errorf("%s %s", err, errDestroy)
+		}
 		return err
 	}
 
@@ -237,12 +244,12 @@ func (vm *VM) Provision() error {
 	// Wait until VM runs
 	err = waitUntil(vm, lvm.VMRunning)
 	if err != nil {
-		return err
+		return cleanup(err)
 	}
 
 	// Create and associate an floating IP for this VM
 	if vm.FloatingIPPool == "" {
-		return fmt.Errorf("empty floating IP pool")
+		return cleanup(fmt.Errorf("empty floating IP pool"))
 	}
 
 	fip, err := floatingip.Create(client, &floatingip.CreateOpts{
@@ -250,26 +257,28 @@ func (vm *VM) Provision() error {
 	}).Extract()
 
 	if err != nil {
-		return fmt.Errorf("unable to create a floating ip: %s", err)
+		return cleanup(fmt.Errorf("unable to create a floating ip: %s", err))
 	}
 
 	err = floatingip.Associate(client, server.ID, fip.IP).ExtractErr()
 	if err != nil {
-		return fmt.Errorf("unable to associate a floating ip: %s", err)
+		errFipDelete := floatingip.Delete(client, fip.ID).ExtractErr()
+		err = fmt.Errorf("%s %s", err, errFipDelete)
+		return cleanup(fmt.Errorf("unable to associate a floating ip: %s", err))
 	}
 	vm.FloatingIP = fip
 
 	// Wait until the VM gets ready for SSH
 	err = waitUntilSSHReady(vm)
 	if err != nil {
-		return err
+		return cleanup(err)
 	}
 
 	// Create and attach a volume to this VM, if the volume size is > 0
 	if vm.Volume.Size > 0 {
 		err = createAndAttachVolume(vm)
 		if err != nil {
-			return err
+			return cleanup(err)
 		}
 	}
 
@@ -343,7 +352,7 @@ func (vm *VM) Destroy() error {
 	}
 
 	// De-attach and delete the volume, if there is an attached one
-	if vm.Volume.Size > 0 {
+	if vm.Volume.ID != "" {
 		err := deattachAndDeleteVolume(vm)
 		if err != nil {
 			return err

@@ -425,23 +425,34 @@ func createAndAttachVolume(vm *VM) error {
 		return fmt.Errorf("failed to create a new volume for the VM: %s", err)
 	}
 
+	// Cleanup the volume if something goes wrong
+	var cleanup = func(err error) error {
+		if errDeleteVolume := volumes.Delete(bsClient, vol.ID).ExtractErr(); errDeleteVolume != nil {
+			return fmt.Errorf("%s %s", err, errDeleteVolume)
+		}
+
+		return err
+	}
+
 	// Wait until Volume becomes available
 	err = waitUntilVolume(bsClient, vol.ID, volumeStateAvailable)
 	if err != nil {
-		return fmt.Errorf("failed to create a new volume for the VM: %s", err)
+		return cleanup(fmt.Errorf("failed to create a new volume for the VM: %s", err))
 	}
 
 	// Attach the new volume to this VM
 	vaOpts := volumeattach.CreateOpts{Device: volume.Device, VolumeID: vol.ID}
 	va, err := volumeattach.Create(cClient, vm.InstanceID, vaOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("failed to attach the volume to the VM: %s", err)
+		return cleanup(fmt.Errorf("failed to attach the volume to the VM: %s", err))
 	}
 
 	// Wait until Volume is attached to the VM
 	err = waitUntilVolume(bsClient, vol.ID, volumeStateInUse)
 	if err != nil {
-		return fmt.Errorf("failed to attach the volume to the VM: %s", err)
+		errVaDelete := volumeattach.Delete(cClient, vm.InstanceID, vol.ID).ExtractErr()
+		err = fmt.Errorf("%s %s", err, errVaDelete)
+		return cleanup(fmt.Errorf("failed to attach the volume to the VM: %s", err))
 	}
 
 	vm.Volume.ID = vol.ID
