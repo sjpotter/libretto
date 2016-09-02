@@ -10,6 +10,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net"
+	"os"
 	"path"
 	"strconv"
 	"strings"
@@ -83,6 +84,7 @@ type Credentials struct {
 type Options struct {
 	IPs       []net.IP
 	KeepAlive int
+	Pty       bool
 }
 
 // SSHClient provides details for the SSH connection.
@@ -344,6 +346,18 @@ func (client *SSHClient) Run(command string, stdout io.Writer, stderr io.Writer)
 
 	session.Stdout = stdout
 	session.Stderr = stderr
+
+	if client.Options.Pty {
+		modes := cssh.TerminalModes{
+			cssh.ECHO:          0,
+			cssh.TTY_OP_ISPEED: 14400,
+			cssh.TTY_OP_OSPEED: 14400,
+		}
+		// Request pseudo terminal
+		if err := session.RequestPty(os.Getenv("TERM"), 80, 40, modes); err != nil {
+			return err
+		}
+	}
 
 	return session.Run(command)
 }
