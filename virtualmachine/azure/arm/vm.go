@@ -73,7 +73,8 @@ type VM struct {
 	Name string
 
 	// SSH Properties
-	SSHCreds ssh.Credentials // required
+	SSHCreds     ssh.Credentials // required
+	SSHPublicKey string
 
 	// Deployment Properties
 	ResourceGroup    string
