@@ -63,7 +63,7 @@ func (vm *VM) toARMParameters() *armParameters {
 		NicName:              &armParameter{vm.Nic},
 		OSFileName:           &armParameter{vm.OsFile},
 		PublicIPName:         &armParameter{vm.PublicIP},
-		SSHAuthorizedKey:     &armParameter{vm.SSHCreds.SSHPrivateKey},
+		SSHAuthorizedKey:     &armParameter{vm.SSHPublicKey},
 		StorageAccountName:   &armParameter{vm.StorageAccount},
 		StorageContainerName: &armParameter{vm.StorageContainer},
 		SubnetName:           &armParameter{vm.Subnet},

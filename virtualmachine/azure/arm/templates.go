@@ -116,9 +116,16 @@ const Linux = `{
         "osProfile": {
           "computerName": "[parameters('vm_name')]",
           "adminUsername": "[parameters('username')]",
-          "adminPassword": "[parameters('password')]",
           "linuxConfiguration": {
-            "disablePasswordAuthentication": "false"
+            "disablePasswordAuthentication": "true",
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[concat('/home/', parameters('username'), '/.ssh/authorized_keys')]",
+                  "keyData": "[parameters('ssh_authorized_key')]"
+                }
+              ]
+            }
           }
         },
         "storageProfile": {
