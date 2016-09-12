@@ -158,6 +158,14 @@ type VM struct {
 	// SecurityGroup represents the name of the security group to which this VM should belong
 	SecurityGroup string
 
+	// UserData [optional] contains configuration information or scripts to use upon launch,
+	// known as cloud-init scripts.
+	UserData []byte
+
+	// AdminPassword [optional] sets the root user password. If not set, a randomly-generated password
+	// will be created by OpenStack API.
+	AdminPassword string
+
 	// Credentials are the credentials to use when connecting to the VM over SSH
 	Credentials ssh.Credentials
 
@@ -223,6 +231,8 @@ func (vm *VM) Provision() error {
 		ImageRef:       imageID,
 		Networks:       listOfNetworks,
 		SecurityGroups: []string{securityGroup},
+		UserData:       vm.UserData,
+		AdminPass:      vm.AdminPassword,
 	}
 
 	server, err := servers.Create(client, createOpts).Extract()
