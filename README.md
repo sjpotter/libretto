@@ -229,8 +229,15 @@ vm := &gcp.VM{
 
 ``` go
 
-    metadata := openstack.NewDefaultImageMetadata()
+
+  metadata := openstack.NewDefaultImageMetadata()
   volume := openstack.NewDefaultVolume()
+
+  // Optional
+  cloudInit, err := ioutil.ReadFile("/your/user/data")
+  if err != nil {
+      return err
+  }
 
   vm := &openstack.VM{
     IdentityEndpoint: os.Getenv("OS_AUTH_URL"),
@@ -249,6 +256,8 @@ vm := &gcp.VM{
     FloatingIPPool:   "net04_ext",
     FloatingIP:       nil,
     SecurityGroup:    "test",
+    AdminPassword:    os.Getenv("OS_ADMIN_PASSWORD"),
+    UserData:         cloudInit,
     Credentials: ssh.Credentials{
       SSHUser:     "ubuntu",
       SSHPassword: "ubuntu",
