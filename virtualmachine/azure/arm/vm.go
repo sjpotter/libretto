@@ -187,7 +187,7 @@ func (vm *VM) GetState() (string, error) {
 	virtualMachinesClient.Authorizer = authorizer
 
 	r, e := virtualMachinesClient.Get(vm.ResourceGroup, vm.Name, "InstanceView")
-	if r.Properties != nil && r.Properties.InstanceView != nil {
+	if r.Properties != nil && r.Properties.InstanceView != nil && len(*r.Properties.InstanceView.Statuses) > 0 {
 		state := *(*r.Properties.InstanceView.Statuses)[1].DisplayStatus
 		return translateState(state), e
 	}
