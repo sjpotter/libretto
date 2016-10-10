@@ -84,6 +84,10 @@ type VM struct {
 	// VM OS Properties
 	OsFile string
 
+	// VM Disk Properties
+	DiskFile string
+	DiskSize int //GB
+
 	// VM Network Properties
 	NetworkSecurityGroup string
 	Nic                  string
@@ -113,6 +117,9 @@ func (vm *VM) Provision() error {
 	tempName := fmt.Sprintf("%s", randStringRunes(5))
 	if vm.OsFile == "" {
 		vm.OsFile = tempName + "-os-disk.vhd"
+	}
+	if vm.DiskFile == "" {
+		vm.DiskFile = tempName + "-disk.vhd"
 	}
 	if vm.PublicIP == "" {
 		vm.PublicIP = tempName + "-public-ip"
@@ -240,8 +247,8 @@ func (vm *VM) Destroy() error {
 	}
 
 	var errors []error
-	// Delete the OS File of this VM
-	err = vm.deleteOSFile(authorizer)
+	// Delete the files of this VM
+	err = vm.deleteVMFiles(authorizer)
 	if err != nil {
 		errors = append(errors, err)
 	}
