@@ -244,7 +244,13 @@ func (vm *VM) Destroy() error {
 	}
 
 	// Delete the public IP of this VM
-	return vm.deletePublicIP(authorizer)
+	err = vm.deletePublicIP(authorizer)
+	if err != nil {
+		return err
+	}
+
+	// Delete the deployed arm template
+	return vm.deleteDeployment(authorizer)
 }
 
 // Halt shuts down the VM.
