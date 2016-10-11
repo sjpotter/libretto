@@ -252,6 +252,17 @@ func (vm *VM) deletePublicIP(authorizer *azure.ServicePrincipalToken) error {
 	return err
 }
 
+// deleteDeployment deletes the deployed azure arm template for this vm.
+func (vm *VM) deleteDeployment(authorizer *azure.ServicePrincipalToken) error {
+	// Get the deployments client
+	deploymentsClient := resources.NewDeploymentsClient(vm.Creds.SubscriptionID)
+	deploymentsClient.Authorizer = authorizer
+
+	// Delete the deployment
+	_, err := deploymentsClient.Delete(vm.ResourceGroup, vm.deploymentName, nil)
+	return err
+}
+
 func createDeployment(template string, params armParameters) (*resources.Deployment, error) {
 	templateMap, err := unmarshalTemplate(template)
 	if err != nil {
