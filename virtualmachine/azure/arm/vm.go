@@ -92,7 +92,7 @@ type VM struct {
 	VirtualNetwork       string
 
 	// deployment
-	deploymentName string
+	DeploymentName string
 }
 
 // GetName returns the name of the VM.
@@ -111,10 +111,18 @@ func (vm *VM) Provision() error {
 
 	// Set up private members of the VM
 	tempName := fmt.Sprintf("%s", randStringRunes(5))
-	vm.OsFile = tempName + "-os-disk.vhd"
-	vm.PublicIP = tempName + "-public-ip"
-	vm.Nic = tempName + "-nic"
-	vm.deploymentName = tempName + "-deploy"
+	if vm.OsFile == "" {
+		vm.OsFile = tempName + "-os-disk.vhd"
+	}
+	if vm.PublicIP == "" {
+		vm.PublicIP = tempName + "-public-ip"
+	}
+	if vm.Nic == "" {
+		vm.Nic = tempName + "-nic"
+	}
+	if vm.DeploymentName == "" {
+		vm.DeploymentName = tempName + "-deploy"
+	}
 
 	// Create and send the deployment
 	vm.deploy()

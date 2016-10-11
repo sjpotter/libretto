@@ -149,14 +149,14 @@ func (vm *VM) deploy() error {
 	deploymentsClient := resources.NewDeploymentsClient(vm.Creds.SubscriptionID)
 	deploymentsClient.Authorizer = authorizer
 
-	_, err = deploymentsClient.CreateOrUpdate(vm.ResourceGroup, vm.deploymentName, *deployment, nil)
+	_, err = deploymentsClient.CreateOrUpdate(vm.ResourceGroup, vm.DeploymentName, *deployment, nil)
 	if err != nil {
 		return err
 	}
 
 	// Make sure the deployment is succeeded
 	for i := 0; i < actionTimeout; i++ {
-		result, err := deploymentsClient.Get(vm.ResourceGroup, vm.deploymentName)
+		result, err := deploymentsClient.Get(vm.ResourceGroup, vm.DeploymentName)
 		if err != nil {
 			return err
 		}
@@ -259,7 +259,7 @@ func (vm *VM) deleteDeployment(authorizer *azure.ServicePrincipalToken) error {
 	deploymentsClient.Authorizer = authorizer
 
 	// Delete the deployment
-	_, err := deploymentsClient.Delete(vm.ResourceGroup, vm.deploymentName, nil)
+	_, err := deploymentsClient.Delete(vm.ResourceGroup, vm.DeploymentName, nil)
 	return err
 }
 
