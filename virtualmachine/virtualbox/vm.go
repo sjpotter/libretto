@@ -122,7 +122,14 @@ func (vm *VM) Destroy() error {
 
 // Halt powers off the VM without destroying it
 func (vm *VM) Halt() error {
-	_, err := runner.RunCombinedError("controlvm", vm.Name, "poweroff")
+	state, err := vm.GetState()
+	if err != nil {
+		return err
+	}
+	if state == lvm.VMHalted {
+		return nil
+	}
+	_, err = runner.RunCombinedError("controlvm", vm.Name, "poweroff")
 	if err != nil {
 		return lvm.WrapErrors(lvm.ErrStoppingVM, err)
 	}
