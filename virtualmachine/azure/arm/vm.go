@@ -239,26 +239,45 @@ func (vm *VM) Destroy() error {
 		return ErrActionTimeout
 	}
 
+	var errors []error
 	// Delete the OS File of this VM
 	err = vm.deleteOSFile(authorizer)
 	if err != nil {
-		return err
+		errors = append(errors, err)
 	}
 
 	// Delete the network interface of this VM
 	err = vm.deleteNic(authorizer)
 	if err != nil {
-		return err
-	}
-
-	// Delete the public IP of this VM
-	err = vm.deletePublicIP(authorizer)
-	if err != nil {
-		return err
+		errors = append(errors, err)
+	} else {
+		// Delete the public IP of this VM
+		err = vm.deletePublicIP(authorizer)
+		if err != nil {
+			errors = append(errors, err)
+		}
 	}
 
 	// Delete the deployed arm template
-	return vm.deleteDeployment(authorizer)
+	err = vm.deleteDeployment(authorizer)
+	if err != nil {
+		errors = append(errors, err)
+	}
+
+	// Return all the errors
+	var returnedErr error
+	if len(errors) > 0 {
+		for i, err := range errors {
+			if i == 0 {
+				returnedErr = err
+				continue
+			}
+
+			returnedErr = fmt.Errorf("%s, %s", returnedErr, err)
+		}
+	}
+
+	return returnedErr
 }
 
 // Halt shuts down the VM.

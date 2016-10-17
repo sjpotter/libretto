@@ -505,6 +505,36 @@ func deattachAndDeleteVolume(vm *VM) error {
 	return nil
 }
 
+// Delete the instance
+func deleteVM(client *gophercloud.ServiceClient, vm *VM) error {
+	err := servers.Delete(client, vm.InstanceID).ExtractErr()
+	if err != nil {
+		return fmt.Errorf("failed to destroy the vm: %s", err)
+	}
+
+	// Wait until its status becomes nil within ActionTimeout seconds.
+	var server *servers.Server
+	for i := 0; i < ActionTimeout; i++ {
+		server, err = getServer(vm)
+		if err != nil {
+			return err
+		}
+
+		if server == nil {
+			break
+		} else if server.Status == StateError {
+			return fmt.Errorf("error on destroying the vm")
+		}
+
+		time.Sleep(1 * time.Second)
+	}
+
+	if server != nil {
+		return ErrActionTimeout
+	}
+	return nil
+}
+
 // findImageIDByName finds the ImageID for the given imageName, returns an error if there is
 // no image or more than one image with the given Image Name.
 func findImageIDByName(client *gophercloud.ServiceClient, imageName string) (string, error) {
