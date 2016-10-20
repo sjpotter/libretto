@@ -350,54 +350,48 @@ func (vm *VM) Destroy() error {
 	}
 
 	// Delete the floating IP first before destroying the VM
+	var errors []error
 	if vm.FloatingIP != nil {
-		err := floatingip.Disassociate(client, vm.InstanceID, vm.FloatingIP.IP).ExtractErr()
+		err = floatingip.Disassociate(client, vm.InstanceID, vm.FloatingIP.IP).ExtractErr()
 		if err != nil {
-			return fmt.Errorf("unable to disassociate floating ip from instance: %s", err)
-		}
-		err = floatingip.Delete(client, vm.FloatingIP.ID).ExtractErr()
-		if err != nil {
-			return fmt.Errorf("unable to delete floating ip: %s", err)
+			errors = append(errors, fmt.Errorf("unable to disassociate floating ip from instance: %s", err))
+		} else {
+			err = floatingip.Delete(client, vm.FloatingIP.ID).ExtractErr()
+			if err != nil {
+				errors = append(errors, fmt.Errorf("unable to delete floating ip: %s", err))
+			}
 		}
 	}
 
 	// De-attach and delete the volume, if there is an attached one
 	if vm.Volume.ID != "" {
-		err := deattachAndDeleteVolume(vm)
+		err = deattachAndDeleteVolume(vm)
 		if err != nil {
-			return err
+			errors = append(errors, err)
 		}
 	}
 
 	// Delete the instance
-	err = servers.Delete(client, vm.InstanceID).ExtractErr()
+	err = deleteVM(client, vm)
 	if err != nil {
-		return fmt.Errorf("failed to destroy the vm: %s", err)
+		errors = append(errors, err)
 	}
 
-	// Wait until its status becomes nil within ActionTimeout seconds.
-	var server *servers.Server
-	for i := 0; i < ActionTimeout; i++ {
-		server, err = getServer(vm)
-		if err != nil {
-			return err
+	// Return all the errors
+	var returnedErr error
+	if len(errors) > 0 {
+		for i, err := range errors {
+			if i == 0 {
+				returnedErr = err
+				continue
+			}
+
+			returnedErr = fmt.Errorf("%s, %s", returnedErr, err)
 		}
-
-		if server == nil {
-			break
-		} else if server.Status == StateError {
-			return fmt.Errorf("error on destroying the vm")
-		}
-
-		time.Sleep(1 * time.Second)
-	}
-
-	if server != nil {
-		return ErrActionTimeout
 	}
 
 	vm.computeClient = nil
-	return nil
+	return returnedErr
 }
 
 // GetSSH returns an SSH client that can be used to connect to a VM. An error is
