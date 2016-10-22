@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"strconv"
 	"time"
 
 	armStorage "github.com/Azure/azure-sdk-for-go/arm/storage"
@@ -49,11 +50,14 @@ type armParameters struct {
 	StorageContainerName *armParameter `json:"storage_container,omitempty"`
 	VMSize               *armParameter `json:"vm_size,omitempty"`
 	VMName               *armParameter `json:"vm_name,omitempty"`
+	DiskSize             *armParameter `json:"disk_size,omitempty"`
+	DiskFile             *armParameter `json:"disk_file,omitempty"`
+	AdditionalDisk       *armParameter `json:"additional_disk,omitempty"`
 }
 
 // Translates the given VM to arm parameters
 func (vm *VM) toARMParameters() *armParameters {
-	return &armParameters{
+	out := &armParameters{
 		AdminUsername:        &armParameter{vm.SSHCreds.SSHUser},
 		AdminPassword:        &armParameter{vm.SSHCreds.SSHPassword},
 		ImageOffer:           &armParameter{vm.ImageOffer},
@@ -70,7 +74,16 @@ func (vm *VM) toARMParameters() *armParameters {
 		VirtualNetworkName:   &armParameter{vm.VirtualNetwork},
 		VMSize:               &armParameter{vm.Size},
 		VMName:               &armParameter{vm.Name},
+		DiskSize:             &armParameter{strconv.Itoa(vm.DiskSize)},
+		DiskFile:             &armParameter{vm.DiskFile},
+		AdditionalDisk:       &armParameter{"false"},
 	}
+
+	if vm.DiskSize > 0 {
+		out.AdditionalDisk = &armParameter{"true"}
+	}
+
+	return out
 }
 
 // validateVM validates the members of given VM object
@@ -126,6 +139,7 @@ func validateVM(vm *VM) error {
 	if vm.VirtualNetwork == "" {
 		return fmt.Errorf("a virtual network must be specified")
 	}
+
 	return nil
 }
 
@@ -212,7 +226,7 @@ func (vm *VM) getPrivateIP(authorizer *azure.ServicePrincipalToken) (net.IP, err
 
 // deleteOSFile deletes the OS file from the VM's storage account, returns an error if the operation
 // does not succeed.
-func (vm *VM) deleteOSFile(authorizer *azure.ServicePrincipalToken) error {
+func (vm *VM) deleteVMFiles(authorizer *azure.ServicePrincipalToken) error {
 	storageAccountsClient := armStorage.NewAccountsClient(vm.Creds.SubscriptionID)
 	storageAccountsClient.Authorizer = authorizer
 
@@ -228,7 +242,14 @@ func (vm *VM) deleteOSFile(authorizer *azure.ServicePrincipalToken) error {
 
 	blobStorageClient := storageClient.GetBlobService()
 	err = blobStorageClient.DeleteBlob(vm.StorageContainer, vm.OsFile, nil)
-	return err
+	if err != nil {
+		return err
+	}
+	if vm.DiskSize <= 0 {
+		return nil
+	}
+
+	return blobStorageClient.DeleteBlob(vm.StorageContainer, vm.DiskFile, nil)
 }
 
 // deleteNic deletes the network interface for the given VM from the VM's resource group, returns an error

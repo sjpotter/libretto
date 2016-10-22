@@ -2,7 +2,7 @@ package arm
 
 // Linux is the d efault arm template to provision a libretto (Linux) vm on Azure
 const Linux = `{
-  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json",
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "username": {
@@ -29,6 +29,9 @@ const Linux = `{
     "os_file": {
       "type": "string"
     },
+    "disk_file": {
+      "type": "string"
+    },
     "public_ip": {
       "type": "string"
     },
@@ -52,9 +55,33 @@ const Linux = `{
     },
     "vm_name": {
       "type": "string"
+    },
+    "disk_size": {
+      "type": "string"
+    },
+    "additional_disk": {
+      "type": "string"
     }
   },
   "variables": {
+    "diskAttachment": {
+      "true": {
+        "disks": [{
+          "name": "datadisk1",
+          "diskSizeGB": "[parameters('disk_size')]",
+          "lun": 0,
+          "vhd": {
+            "uri": "[concat('http://',parameters('storage_account'),'.blob.core.windows.net/',parameters('storage_container'),'/', parameters('disk_file'))]"
+          },
+          "createOption": "Empty"
+        }]
+      },
+      "false": {
+        "disks": []
+      }
+    },
+    "disksSettings": "[variables('diskAttachment')[parameters('additional_disk')]]",
+    "disksArray": "[variables('disksSettings').disks]",
     "api_version": "2015-06-15",
     "location": "[resourceGroup().location]",
     "subnet_ref": "[concat(variables('vnet_id'),'/subnets/',parameters('subnet'))]",
@@ -135,6 +162,7 @@ const Linux = `{
             "sku": "[parameters('image_sku')]",
             "version": "latest"
           },
+          "dataDisks": "[variables('disksArray')]",
           "osDisk": {
             "name": "osdisk",
             "vhd": {

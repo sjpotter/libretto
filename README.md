@@ -90,6 +90,7 @@ vm := &azure.VM{
    ImageOffer:       "UbuntuServer",
    ImageSku:         "14.04.3-LTS",
    Size:             "Standard_A1",
+   DiskSize:         40 // Set to 0 if you don't want to attach any additional disk
    Name:             "libretto",
    ResourceGroup:    "libretto-rg",
    StorageAccount:   "libretto-sa",
