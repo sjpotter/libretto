@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"golang.org/x/net/context"
@@ -282,7 +283,15 @@ var createRequest = func(r io.Reader, method string, insecure bool, length int64
 
 // findVM finds the vm Managed Object referenced by the name or returns an error if it is not found.
 var findVM = func(vm *VM, dc *mo.Datacenter, name string) (*mo.VirtualMachine, error) {
-	return searchTree(vm, dc.VmFolder, name)
+	moVM, err := searchTree(vm, dc.VmFolder, name)
+	if err != nil {
+		return moVM, err
+	}
+
+	// Having a question pending during operations usually cause errors forcing
+	// manual resolution. Anytime we look up a VM try first to resolve any
+	// questions that we know how to answer.
+	return moVM, vm.answerQuestion(moVM)
 }
 
 func searchTree(vm *VM, mor types.ManagedObjectReference, name string) (*mo.VirtualMachine, error) {
@@ -308,7 +317,7 @@ func searchTree(vm *VM, mor types.ManagedObjectReference, name string) (*mo.Virt
 	case "VirtualMachine":
 		// Base recursive case, compare for value
 		vmMo := mo.VirtualMachine{}
-		err := vm.collector.RetrieveOne(vm.ctx, mor, []string{"name", "guest.ipAddress", "guest.guestState", "guest.net"}, &vmMo)
+		err := vm.collector.RetrieveOne(vm.ctx, mor, []string{"name", "guest.ipAddress", "guest.guestState", "guest.net", "runtime.question"}, &vmMo)
 		if err != nil {
 			return nil, NewErrorObjectNotFound(errors.New("could not find the vm"), name)
 		}
@@ -722,6 +731,54 @@ func getState(vm *VM) (state string, err error) {
 	}
 
 	return vmMo.Guest.GuestState, nil
+}
+
+// answerQuestion checks to see if there are currently pending questions on the
+// VM which prevent further actions. If so, it automatically responds to the
+// question based on the the vm.QuestionResponses map. If there is a problem
+// responding to the question, the error is returned. If there are no pending
+// questions or it does not map to any predefined response, nil is returned.
+func (vm *VM) answerQuestion(vmMo *mo.VirtualMachine) error {
+	q := vmMo.Runtime.Question
+	if q == nil {
+		return nil
+	}
+
+	for qre, ans := range vm.QuestionResponses {
+		if match, err := regexp.MatchString(qre, q.Text); err != nil {
+			return fmt.Errorf("error while parsing automated responses: %v", err)
+		} else if match {
+			ans, validOptions := resolveAnswerAndOptions(q.Choice.ChoiceInfo, ans)
+			err = answerVSphereQuestion(vm, vmMo, q.Id, ans)
+			if err != nil {
+				return fmt.Errorf("error with answer %q to question %q: %v. Valid answers: %v", ans, q.Text, err, validOptions)
+			}
+		}
+	}
+
+	return nil
+}
+
+// resolveAnswerAndOptions takes the choiceInfo of a question object and the
+// intended answer (index string or summary text) and returns the matching
+// answer index as a string along with a human readable representation of the
+// valid options. If the given answer does not match any of the choices summary
+// text, the given answer is returned.
+func resolveAnswerAndOptions(choiceInfo []types.BaseElementDescription, answer string) (resolvedAnswer, validOptions string) {
+	resolvedAnswer = answer
+	for _, e := range choiceInfo {
+		ed := e.(*types.ElementDescription)
+		validOptions = fmt.Sprintf("%s(%s) %s ", validOptions, ed.Key, ed.Description.Summary)
+		if strings.EqualFold(ed.Description.Summary, answer) {
+			resolvedAnswer = ed.Key
+		}
+	}
+	return resolvedAnswer, strings.TrimSpace(validOptions)
+}
+
+var answerVSphereQuestion = func(vm *VM, vmMo *mo.VirtualMachine, questionID string, answer string) error {
+	vmObj := object.NewVirtualMachine(vm.client.Client, vmMo.Reference())
+	return vmObj.Answer(vm.ctx, questionID, answer)
 }
 
 func init() {

@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -736,5 +737,114 @@ func TestCreateRequestHappyPath(t *testing.T) {
 	err := createRequest(mockProgressReader{}, "foo", true, 0, "", "foo")
 	if err != nil {
 		t.Fatalf("Expected to get no errors got: %s", err)
+	}
+}
+
+var vmMo = &mo.VirtualMachine{
+	Runtime: types.VirtualMachineRuntimeInfo{
+		Question: &types.VirtualMachineQuestionInfo{
+			Text: "test question",
+			Choice: types.ChoiceOption{
+				ChoiceInfo: []types.BaseElementDescription{
+					&types.ElementDescription{
+						Key:         "0",
+						Description: types.Description{Summary: "Zero"},
+					},
+					&types.ElementDescription{
+						Key:         "1",
+						Description: types.Description{Summary: "One"},
+					},
+				},
+			},
+		},
+	},
+}
+
+func TestAnswerQuestions_HappyPath(t *testing.T) {
+	var oldAnswerQuestion = answerVSphereQuestion
+	defer func() {
+		answerVSphereQuestion = oldAnswerQuestion
+	}()
+
+	answerVSphereQuestion = func(vm *VM, vmMo *mo.VirtualMachine, questionId, answer string) error {
+		return nil
+	}
+	testCases := []struct {
+		key         string
+		expectError bool
+	}{
+		{"test", false},
+		{"foo", false},
+		{"[", true},
+		{"", false},
+	}
+	for _, tc := range testCases {
+		vm := VM{}
+		if tc.key != "" {
+			vm.QuestionResponses = map[string]string{tc.key: "foo"}
+		}
+		err := vm.answerQuestion(vmMo)
+		if err == nil && tc.expectError {
+			t.Fatalf("Expected an error due to regexp compliation, got nil")
+		}
+		if err != nil {
+			_, re := regexp.Compile(tc.key)
+			if !strings.Contains(err.Error(), re.Error()) {
+				t.Errorf("Expected error due to regexp compilation; got: %s", err)
+			}
+		}
+	}
+}
+
+func TestAnswerQuestions_ErrorPath(t *testing.T) {
+	var oldAnswerQuestion = answerVSphereQuestion
+	defer func() {
+		answerVSphereQuestion = oldAnswerQuestion
+	}()
+
+	answerVSphereQuestion = func(vm *VM, vmMo *mo.VirtualMachine, questionId, answer string) error {
+		return fmt.Errorf("Simulated error")
+	}
+	testCases := []struct {
+		key         string
+		expectError bool
+	}{
+		{"test", true},
+		{"", false},
+		{"foo", false},
+	}
+	for _, tc := range testCases {
+		vm := VM{}
+		if tc.key != "" {
+			vm.QuestionResponses = map[string]string{tc.key: "foo"}
+		}
+		err := vm.answerQuestion(vmMo)
+		if err == nil && tc.expectError {
+			t.Fatalf("Expected an error, got nil")
+		}
+	}
+}
+
+func TestResolveAnswerAndOptions(t *testing.T) {
+	testCases := []struct {
+		answer         string
+		expectedAnswer string
+	}{
+		{"0", "0"},
+		{"1", "1"},
+		{"One", "1"},
+		{"zEro", "0"},
+		{"nomatch", "nomatch"},
+	}
+	q := vmMo.Runtime.Question
+	expectedValidOptions := "(0) Zero (1) One"
+	for _, tc := range testCases {
+		newAnswer, validOptions := resolveAnswerAndOptions(q.Choice.ChoiceInfo, tc.answer)
+		if tc.expectedAnswer != newAnswer {
+			t.Errorf("Expected answer %q to resolve to %q; got %q", tc.answer, tc.expectedAnswer, newAnswer)
+		}
+		if expectedValidOptions != validOptions {
+			t.Errorf("Expected validOptions %q; got %q", expectedValidOptions, validOptions)
+		}
 	}
 }

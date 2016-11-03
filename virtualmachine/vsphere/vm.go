@@ -336,6 +336,11 @@ type VM struct {
 	Credentials ssh.Credentials
 	// Disks is a slice of extra disks to attach to the VM
 	Disks []Disk
+	// QuestionResponses is a map of regular expressions to match question text
+	// to responses when a VM encounters a questions which would otherwise
+	// prevent normal operation. The response strings should be the string value
+	// of the intended response index.
+	QuestionResponses map[string]string
 
 	uri       *url.URL
 	ctx       context.Context
