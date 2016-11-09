@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"golang.org/x/net/context"
@@ -703,9 +704,10 @@ func TestUploadOvfHappyPath(t *testing.T) {
 }
 
 func TestCreateRequestNewRequestError(t *testing.T) {
+	errProtocol := `unsupported protocol scheme ""`
 	err := createRequest(mockProgressReader{}, "foo", true, 0, "", "foo")
-	if err.Error() != `unsupported protocol scheme ""` {
-		t.Fatalf("Expected to get protocol error, got: %s", err)
+	if !strings.Contains(err.Error(), errProtocol) {
+		t.Fatalf("Expected error to contain %q, got: %q", errProtocol, err)
 	}
 }
 
