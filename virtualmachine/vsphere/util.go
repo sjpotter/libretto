@@ -795,7 +795,7 @@ func init() {
 				// Search here first
 				found, err := findMob(vm, child, name)
 				if err != nil {
-					return found, nil
+					return found, err
 				}
 			}
 			if child.Type == "ComputeResource" {
