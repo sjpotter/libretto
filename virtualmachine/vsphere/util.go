@@ -781,20 +781,29 @@ var answerVSphereQuestion = func(vm *VM, vmMo *mo.VirtualMachine, questionID str
 	return vmObj.Answer(vm.ctx, questionID, answer)
 }
 
+var errorEmpty = errors.New("Folder is empty")
+
 func init() {
 	findMob = func(vm *VM, mor types.ManagedObjectReference, name string) (*types.ManagedObjectReference, error) {
 		folder := mo.Folder{}
 		// Get the child entity of the folder passed in
+
 		err := vm.collector.RetrieveOne(vm.ctx, mor, []string{"childEntity"}, &folder)
 		if err != nil {
 			return nil, err
+		}
+
+		if len(folder.ChildEntity) == 0 {
+			return nil, errorEmpty
 		}
 
 		for _, child := range folder.ChildEntity {
 			if child.Type == "Folder" {
 				// Search here first
 				found, err := findMob(vm, child, name)
-				if err != nil {
+				if err == errorEmpty {
+					continue
+				} else if err != nil {
 					return found, err
 				}
 			}
