@@ -1,20 +1,22 @@
-
 language: go
+
 go:
-  - 1.6.2
-  - 1.7.3
+  - 1.6
+  - 1.7
   - tip
+
 os:
   - linux
   - osx
+
 env:
-  global:
-    - GO15VENDOREXPERIMENT=1
   matrix:
     - BUILD_GOARCH=amd64
     - BUILD_GOARCH=386
-install: true # avoids go get. assumes all necessary code is in the repo
+
+# don't go get deps. will only build with code in vendor directory.
+install: true
+
 script:
-  - go build
   - go vet $(go list ./... | grep -v /vendor/)
   - go test -v -race $(go list ./... | grep -v /vendor/)
