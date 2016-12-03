@@ -57,11 +57,11 @@ func (ts TokenSource) GetRequestMetadata(ctx context.Context, uri ...string) (ma
 		return nil, err
 	}
 	return map[string]string{
-		"authorization": token.TokenType + " " + token.AccessToken,
+		"authorization": token.Type() + " " + token.AccessToken,
 	}, nil
 }
 
-// RequireTransportSecurity indicates whether the credentails requires transport security.
+// RequireTransportSecurity indicates whether the credentials requires transport security.
 func (ts TokenSource) RequireTransportSecurity() bool {
 	return true
 }
