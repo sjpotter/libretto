@@ -13,7 +13,6 @@ import (
 	"github.com/apcera/libretto/util"
 	"github.com/apcera/libretto/virtualmachine"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
@@ -222,7 +221,8 @@ func (vm *VM) Destroy() error {
 		return nil
 	}
 
-	return vm.DeleteKeyPair()
+	vm.ResetKeyPair()
+	return nil
 }
 
 // GetSSH returns an SSH client that can be used to connect to a VM. An error
@@ -330,52 +330,14 @@ func (vm *VM) Resume() error {
 	return ErrNoSupportResume
 }
 
-// UseKeyPair uploads the public part of a keypair to AWS with a given name
-// and sets the private part as the VM's private key. If the public key already
-// exists, then the private key will still be assigned to this VM and the error
-// will be nil.
-func (vm *VM) UseKeyPair(kp *ssh.KeyPair, name string) error {
-	if kp == nil {
-		return errors.New("Key pair can't be nil.")
-	}
-
-	svc := getService(vm.Region)
-
-	_, err := svc.ImportKeyPair(&ec2.ImportKeyPairInput{
-		KeyName:           aws.String(name),
-		PublicKeyMaterial: kp.PublicKey,
-		DryRun:            aws.Bool(false),
-	})
-	if awsErr, isAWS := err.(awserr.Error); isAWS {
-		if awsErr.Code() != "InvalidKeyPair.Duplicate" {
-			return err
-		}
-	} else if err != nil {
-		return err
-	}
-
-	vm.SSHCreds.SSHPrivateKey = string(kp.PrivateKey)
+// SetKeyPair sets the given private key and AWS key name for this vm
+func (vm *VM) SetKeyPair(privateKey string, name string) {
+	vm.SSHCreds.SSHPrivateKey = privateKey
 	vm.KeyPair = name
-
-	return nil
 }
 
-// DeleteKeyPair deletes the key pair set for this VM.
-func (vm *VM) DeleteKeyPair() error {
-	svc := getService(vm.Region)
-
-	if vm.KeyPair == "" {
-		return errors.New("Missing key pair name")
-	}
-
-	_, err := svc.DeleteKeyPair(&ec2.DeleteKeyPairInput{
-		KeyName: aws.String(vm.KeyPair),
-		DryRun:  aws.Bool(false),
-	})
-	if err != nil {
-		return fmt.Errorf("Failed to delete key pair: %s", err)
-	}
-
+// ResetKeyPair resets the key pair for this VM.
+func (vm *VM) ResetKeyPair() {
 	vm.SSHCreds.SSHPrivateKey = ""
-	return nil
+	vm.KeyPair = ""
 }
