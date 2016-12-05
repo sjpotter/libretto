@@ -237,15 +237,6 @@
 			"notests": true
 		},
 		{
-			"importpath": "go4.org/syncutil/singleflight",
-			"repository": "https://github.com/camlistore/go4",
-			"vcs": "git",
-			"revision": "09d86de304dc27e636298361bbfee4ac6ab04f21",
-			"branch": "master",
-			"path": "/syncutil/singleflight",
-			"notests": true
-		},
-		{
 			"importpath": "golang.org/x/crypto/acme",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",
