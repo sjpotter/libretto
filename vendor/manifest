@@ -86,25 +86,16 @@
 			"importpath": "github.com/aws/aws-sdk-go/aws",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
+			"revision": "1355b456f6ba4a8453249e0dc7743f16ccac362d",
 			"branch": "HEAD",
 			"path": "/aws",
-			"notests": true
-		},
-		{
-			"importpath": "github.com/aws/aws-sdk-go/private/endpoints",
-			"repository": "https://github.com/aws/aws-sdk-go",
-			"vcs": "git",
-			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
-			"branch": "HEAD",
-			"path": "/private/endpoints",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/aws/aws-sdk-go/private/protocol",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
+			"revision": "1355b456f6ba4a8453249e0dc7743f16ccac362d",
 			"branch": "HEAD",
 			"path": "/private/protocol",
 			"notests": true
@@ -113,7 +104,7 @@
 			"importpath": "github.com/aws/aws-sdk-go/private/waiter",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
+			"revision": "1355b456f6ba4a8453249e0dc7743f16ccac362d",
 			"branch": "HEAD",
 			"path": "/private/waiter",
 			"notests": true
@@ -122,7 +113,7 @@
 			"importpath": "github.com/aws/aws-sdk-go/service/ec2",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
+			"revision": "1355b456f6ba4a8453249e0dc7743f16ccac362d",
 			"branch": "HEAD",
 			"path": "/service/ec2",
 			"notests": true
@@ -131,7 +122,7 @@
 			"importpath": "github.com/aws/aws-sdk-go/service/sts",
 			"repository": "https://github.com/aws/aws-sdk-go",
 			"vcs": "git",
-			"revision": "565027b24171359f23f883d0fc48c228cdde301d",
+			"revision": "1355b456f6ba4a8453249e0dc7743f16ccac362d",
 			"branch": "HEAD",
 			"path": "/service/sts",
 			"notests": true
