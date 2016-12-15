@@ -3,6 +3,7 @@
 package aws
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -223,4 +224,44 @@ func hasInstanceID(instance *ec2.Instance) bool {
 	}
 
 	return true
+}
+
+// UploadKeyPair uploads the public key to AWS with a given name.
+// If the public key already exists, then no error is returned.
+func UploadKeyPair(publicKey []byte, name string, region string) error {
+	svc := getService(region)
+
+	_, err := svc.ImportKeyPair(&ec2.ImportKeyPairInput{
+		KeyName:           aws.String(name),
+		PublicKeyMaterial: publicKey,
+		DryRun:            aws.Bool(false),
+	})
+	if awsErr, isAWS := err.(awserr.Error); isAWS {
+		if awsErr.Code() != "InvalidKeyPair.Duplicate" {
+			return err
+		}
+	} else if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeleteKeyPair deletes the given key pair from the given region.
+func DeleteKeyPair(name string, region string) error {
+	svc := getService(region)
+
+	if name == "" {
+		return errors.New("Missing key pair name")
+	}
+
+	_, err := svc.DeleteKeyPair(&ec2.DeleteKeyPairInput{
+		KeyName: aws.String(name),
+		DryRun:  aws.Bool(false),
+	})
+	if err != nil {
+		return fmt.Errorf("Failed to delete key pair: %s", err)
+	}
+
+	return nil
 }
