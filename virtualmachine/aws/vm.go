@@ -103,7 +103,10 @@ func (vm *VM) GetName() string {
 
 // SetTag adds a tag to the VM and its attached volumes.
 func (vm *VM) SetTag(key, value string) error {
-	svc := getService(vm.Region)
+	svc, err := getService(vm.Region)
+	if err != nil {
+		return fmt.Errorf("failed to get AWS service: %v", err)
+	}
 
 	if vm.InstanceID == "" {
 		return ErrNoInstanceID
@@ -139,7 +142,10 @@ func (vm *VM) SetTag(key, value string) error {
 // if the VM takes too long to enter "running" state.
 func (vm *VM) Provision() error {
 	<-limiter
-	svc := getService(vm.Region)
+	svc, err := getService(vm.Region)
+	if err != nil {
+		return fmt.Errorf("failed to get AWS service: %v", err)
+	}
 
 	resp, err := svc.RunInstances(instanceInfo(vm))
 	if err != nil {
@@ -167,7 +173,11 @@ func (vm *VM) Provision() error {
 // PrivateIP consts can be used to retrieve respective IP address type. It
 // returns nil if there was an error obtaining the IPs.
 func (vm *VM) GetIPs() ([]net.IP, error) {
-	svc := getService(vm.Region)
+	svc, err := getService(vm.Region)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get AWS service: %v", err)
+	}
+
 	if vm.InstanceID == "" {
 		// Probably need to call Provision first.
 		return nil, ErrNoInstanceID
@@ -203,12 +213,16 @@ func (vm *VM) GetIPs() ([]net.IP, error) {
 // Destroy terminates the VM on AWS. It returns an error if AWS credentials are
 // missing or if there is no instance ID.
 func (vm *VM) Destroy() error {
-	svc := getService(vm.Region)
+	svc, err := getService(vm.Region)
+	if err != nil {
+		return fmt.Errorf("failed to get AWS service: %v", err)
+	}
+
 	if vm.InstanceID == "" {
 		// Probably need to call Provision first.
 		return ErrNoInstanceID
 	}
-	_, err := svc.TerminateInstances(&ec2.TerminateInstancesInput{
+	_, err = svc.TerminateInstances(&ec2.TerminateInstancesInput{
 		InstanceIds: []*string{
 			aws.String(vm.InstanceID),
 		},
@@ -249,7 +263,10 @@ func (vm *VM) GetSSH(options ssh.Options) (ssh.Client, error) {
 // returned if the instance ID is missing, if there was a problem querying AWS,
 // or if there are no instances.
 func (vm *VM) GetState() (string, error) {
-	svc := getService(vm.Region)
+	svc, err := getService(vm.Region)
+	if err != nil {
+		return "", fmt.Errorf("failed to get AWS service: %v", err)
+	}
 
 	if vm.InstanceID == "" {
 		// Probably need to call Provision first.
@@ -277,14 +294,17 @@ func (vm *VM) GetState() (string, error) {
 
 // Halt shuts down the VM on AWS.
 func (vm *VM) Halt() error {
-	svc := getService(vm.Region)
+	svc, err := getService(vm.Region)
+	if err != nil {
+		return fmt.Errorf("failed to get AWS service: %v", err)
+	}
 
 	if vm.InstanceID == "" {
 		// Probably need to call Provision first.
 		return ErrNoInstanceID
 	}
 
-	_, err := svc.StopInstances(&ec2.StopInstancesInput{
+	_, err = svc.StopInstances(&ec2.StopInstancesInput{
 		InstanceIds: []*string{
 			aws.String(vm.InstanceID),
 		},
@@ -300,14 +320,17 @@ func (vm *VM) Halt() error {
 
 // Start boots a stopped VM.
 func (vm *VM) Start() error {
-	svc := getService(vm.Region)
+	svc, err := getService(vm.Region)
+	if err != nil {
+		return fmt.Errorf("failed to get AWS service: %v", err)
+	}
 
 	if vm.InstanceID == "" {
 		// Probably need to call Provision first.
 		return ErrNoInstanceID
 	}
 
-	_, err := svc.StartInstances(&ec2.StartInstancesInput{
+	_, err = svc.StartInstances(&ec2.StartInstancesInput{
 		InstanceIds: []*string{
 			aws.String(vm.InstanceID),
 		},
