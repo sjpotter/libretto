@@ -317,7 +317,7 @@ func searchTree(vm *VM, mor types.ManagedObjectReference, name string) (*mo.Virt
 	case "VirtualMachine":
 		// Base recursive case, compare for value
 		vmMo := mo.VirtualMachine{}
-		err := vm.collector.RetrieveOne(vm.ctx, mor, []string{"name", "guest.ipAddress", "guest.guestState", "guest.net", "runtime.question"}, &vmMo)
+		err := vm.collector.RetrieveOne(vm.ctx, mor, []string{"name", "guest.ipAddress", "guest.guestState", "guest.net", "runtime.question", "snapshot.currentSnapshot"}, &vmMo)
 		if err != nil {
 			return nil, NewErrorObjectNotFound(errors.New("could not find the vm"), name)
 		}
@@ -363,6 +363,24 @@ var cloneFromTemplate = func(vm *VM, dcMo *mo.Datacenter, usableDatastores []str
 		Template: false,
 		PowerOn:  false,
 	}
+
+	// To create a linked clone, we need to set the DiskMoveType and reference
+	// the snapshot of the VM we are cloning.
+	if vm.UseLinkedClones {
+		relocateSpec = types.VirtualMachineRelocateSpec{
+			Pool:         &l.ResourcePool,
+			Host:         &l.Host,
+			Datastore:    &dsMor,
+			DiskMoveType: "createNewChildDiskBacking",
+		}
+		cisp = types.VirtualMachineCloneSpec{
+			Location: relocateSpec,
+			Template: false,
+			PowerOn:  false,
+			Snapshot: vmMo.Snapshot.CurrentSnapshot,
+		}
+	}
+
 	folderObj := object.NewFolder(vm.client.Client, dcMo.VmFolder)
 	t, err := vmObj.Clone(vm.ctx, folderObj, vm.Name, cisp)
 	if err != nil {
@@ -649,10 +667,36 @@ var uploadTemplate = func(vm *VM, dcMo *mo.Datacenter, selectedDatastore string)
 		return fmt.Errorf("error getting the uploaded VM: %s", err)
 	}
 
+	// LinkedClones cannot be created from templates, but must be created from snapshots of VMs.
+	// If UseLinkedClones is set to true, do not mark this is a template and instead
+	// create the necessary snapshot to produce a linked clone from.
 	vmo := object.NewVirtualMachine(vm.client.Client, vmMo.Reference())
-	err = vmo.MarkAsTemplate(vm.ctx)
-	if err != nil {
-		return fmt.Errorf("error converting the uploaded VM to a template: %s", err)
+
+	if vm.UseLinkedClones {
+		s := snapshot{
+			Name:        "snapshot-" + template,
+			Description: "Snapshot created by Libretto for linked clones.",
+			Memory:      false,
+			Quiesce:     false,
+		}
+
+		snapshotTask, err := vmo.CreateSnapshot(vm.ctx, s.Name, s.Description, s.Memory, s.Quiesce)
+
+		if err != nil {
+			return fmt.Errorf("error creating snapshot of the vm: %s", err)
+		}
+		tInfo, err := snapshotTask.WaitForResult(vm.ctx, nil)
+		if err != nil {
+			return fmt.Errorf("error waiting for snapshot to finish: %s", err)
+		}
+		if tInfo.Error != nil {
+			return fmt.Errorf("snapshot task returned an error: %s", err)
+		}
+	} else {
+		err = vmo.MarkAsTemplate(vm.ctx)
+		if err != nil {
+			return fmt.Errorf("error converting the uploaded VM to a template: %s", err)
+		}
 	}
 	return nil
 }

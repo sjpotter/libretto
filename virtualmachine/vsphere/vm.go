@@ -262,6 +262,14 @@ type Disk struct {
 	Controller string
 }
 
+// Snapshot represents a vSphere snapshot to create
+type snapshot struct {
+	Name        string
+	Description string
+	Memory      bool
+	Quiesce     bool
+}
+
 type finder interface {
 	DatacenterList(context.Context, string) ([]*object.Datacenter, error)
 }
@@ -326,7 +334,6 @@ type VM struct {
 	Template string
 	// Datastores is a slice of permissible datastores. One is picked out of these.
 	Datastores []string
-
 	// UseLocalTemplates is a flag to indicate whether a template should be uploaded on all
 	// the datastores that were passed in.
 	UseLocalTemplates bool
@@ -341,14 +348,16 @@ type VM struct {
 	// prevent normal operation. The response strings should be the string value
 	// of the intended response index.
 	QuestionResponses map[string]string
-
-	uri       *url.URL
-	ctx       context.Context
-	cancel    context.CancelFunc
-	client    *govmomi.Client
-	finder    finder
-	collector collector
-	datastore string
+	// UseLinkedClones is a flag to indicate whether VMs cloned from templates should be
+	// linked clones.
+	UseLinkedClones bool
+	uri             *url.URL
+	ctx             context.Context
+	cancel          context.CancelFunc
+	client          *govmomi.Client
+	finder          finder
+	collector       collector
+	datastore       string
 }
 
 // Provision provisions this VM.
